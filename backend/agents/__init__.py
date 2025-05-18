@@ -1,14 +1,18 @@
-from langchain.tools import Tool
-from .classifier import classify
+"""Expose agent tools and factories for external use."""
 
-# Exponemos el tool para que otros módulos puedan importarlo
-classify_tool = Tool(
-    name="classify_document",
-    func=classify,
-    description=(
-        "Clasifica un documento crudo (JSON) y devuelve dict "
-        "{doc_type, period}. Input: ruta del JSON."
-    ),
+from .orchestrator import (
+    get_orchestrator_agent,
+    classify_tool,
+    retrieve_tool,
+    analyze_tool,
 )
+from .aggregator import aggregate_results, aggregate_tool
 
-__all__ = ["classify_tool"]
+__all__ = [
+    "classify_tool",
+    "retrieve_tool",
+    "analyze_tool",
+    "get_orchestrator_agent",
+    "aggregate_results",
+    "aggregate_tool",
+]

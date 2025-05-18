@@ -6,14 +6,16 @@ Usa PyMuPDF (fitz) para rasterizar páginas a PNG y pytesseract para OCR.
 
 from pathlib import Path
 from typing import List
+import os
 import fitz  # PyMuPDF
 import pytesseract
 from PIL import Image
 from langchain_core.documents import Document
 import io
 # backend/loaders/ocr_pdf.py
-import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+# Configure tesseract command
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD", "tesseract")
 
 
 

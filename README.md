@@ -27,6 +27,11 @@ pip install -r requirements.txt
 ```
 OPENAI_API_KEY=your_openai_api_key
 ```
+6. (Optional) Configure the `TESSERACT_CMD` environment variable if the
+   `tesseract` executable is not in your `PATH`:
+```bash
+export TESSERACT_CMD=/usr/bin/tesseract  # adjust to your installation
+```
 
 ## Usage
 

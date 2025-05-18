@@ -43,4 +43,4 @@ API documentation is available at http://localhost:8000/docs
 
 - `POST /upload`: Upload a financial document
 - `POST /classify`: Classify a processed document
-- `POST /split`: Split a financial package into constituent parts 
+- `POST /split`: Split a financial package into constituent parts

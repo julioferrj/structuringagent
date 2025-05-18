@@ -27,6 +27,11 @@ pip install -r requirements.txt
 ```
 OPENAI_API_KEY=your_openai_api_key
 ```
+6. (Optional) Configure the `TESSERACT_CMD` environment variable if the
+   `tesseract` executable is not in your `PATH`:
+```bash
+export TESSERACT_CMD=/usr/bin/tesseract  # adjust to your installation
+```
 
 ## Usage
 
@@ -44,3 +49,40 @@ API documentation is available at http://localhost:8000/docs
 - `POST /upload`: Upload a financial document
 - `POST /classify`: Classify a processed document
 - `POST /split`: Split a financial package into constituent parts
+- `POST /orchestrate`: Full pipeline – upload, classify and split in one call
+- `POST /aggregate`: Combine several classified documents into one dataset
+
+## Orchestrator
+
+The orchestrator endpoint chains together the standard ingestion steps. A file
+is uploaded, converted to a raw JSON document, classified by type/period and
+then split if it is a financial package. The response is a list of JSON files
+ready for analysis.
+
+Example request:
+
+```bash
+curl -X POST -F "file=@/path/to/report.pdf" \
+     http://localhost:8000/orchestrate
+```
+
+The service requires the `OPENAI_API_KEY` variable in your `.env` file just as
+the other endpoints.
+
+## Aggregation
+
+The aggregation endpoint collects multiple processed documents and merges their
+data. Pass a JSON array with the paths returned by the orchestrator or the
+upload endpoint. The result is a consolidated structure that can be consumed by
+other tools.
+
+Example request:
+
+```bash
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"sources": ["reports/raw/1.json", "reports/raw/2.json"]}' \
+     http://localhost:8000/aggregate
+```
+
+This operation also relies on the `OPENAI_API_KEY` environment variable.

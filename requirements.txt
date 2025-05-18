@@ -15,5 +15,5 @@ unstructured[ocr]==0.10.25
 pytesseract>=0.3
 pdf2image>=1.17
 pillow>=10
-pillow-heif>=0.13   # o 
-pi-heif>=0.11
+pillow-heif>=0.13   # optional HEIF support
+pyheif>=0.11        # optional HEIF backend

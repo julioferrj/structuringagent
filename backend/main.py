@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+import json
 from pathlib import Path
 import shutil
 import os
@@ -75,17 +76,25 @@ async def classify(json_path: str):
 async def analyze(json_path: str):
     """Clasifica y divide un documento si es un paquete de EEFF."""
     try:
-        result = orchestrator_agent.invoke({"input": json_path})
+        output = orchestrator_agent.invoke({"input": json_path})
+        if isinstance(output, str):
+            try:
+                result = json.loads(output)
+            except json.JSONDecodeError:
+                result = {"result": output}
+        else:
+            result = output
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis error: {e}")
-    return {"analysis": result}
+    return result
 
 
 @app.post("/aggregate")
 async def aggregate(request: AggregateRequest):
     """Aggrega la información de varios documentos."""
     try:
-        result = summarize_tool.run(request.json_paths)
+        summary = summarize_tool.run(request.json_paths)
+        result = {"summary": summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
-    return {"aggregation": result}
+    return result

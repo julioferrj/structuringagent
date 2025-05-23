@@ -8,7 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from backend.loaders.ingest import extract_raw_json
-from backend.agents import classify_tool, orchestrator_tool, aggregator_tool
+from backend.agents import (
+    classify_tool,
+    get_orchestrator_agent,
+    summarize_tool,
+)
 from backend.schemas import AggregateRequest
 
 
@@ -24,6 +28,9 @@ app = FastAPI(
 # === Carpetas donde guardaremos datos ===
 UPLOAD_DIR = Path("data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Instantiate the orchestrator agent once at startup
+orchestrator_agent = get_orchestrator_agent()
 
 
 @app.post("/split")
@@ -68,7 +75,7 @@ async def classify(json_path: str):
 async def analyze(json_path: str):
     """Clasifica y divide un documento si es un paquete de EEFF."""
     try:
-        result = orchestrator_tool.run(json_path)
+        result = orchestrator_agent.invoke({"input": json_path})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis error: {e}")
     return {"analysis": result}
@@ -78,7 +85,7 @@ async def analyze(json_path: str):
 async def aggregate(request: AggregateRequest):
     """Aggrega la información de varios documentos."""
     try:
-        result = aggregator_tool.run(request.json_paths)
+        result = summarize_tool.run(request.json_paths)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
     return {"aggregation": result}

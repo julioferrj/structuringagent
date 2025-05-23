@@ -1,44 +1,34 @@
-"""Simple orchestrator agent utilities."""
+"""LangChain agent orchestrating document classification, retrieval and analysis."""
 
-from pathlib import Path
-from typing import Dict, Any
+from __future__ import annotations
 
+from typing import Any, Dict, List
+
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 
 from backend.agents.classifier import classify
-from backend.tools import splitter_tool, analysis_tool
+from backend.tools import analysis_tool
 
 
-def _classify_document(json_path: str) -> Dict[str, Any]:
-    """Classify a raw JSON document."""
+# ──────────────────── Classification Tool ──────────────────── #
+
+def _classify(json_path: str) -> Dict[str, Any]:
     return classify(json_path)
 
 
 classify_tool = Tool(
     name="classify_document",
-    func=_classify_document,
-    description="Classify a raw document by type and period",
+    func=_classify,
+    description="Classify a RawDocument JSON file by type and period",
 )
 
 
-def _orchestrate(json_path: str) -> Dict[str, Any]:
-    """Run a simple orchestration pipeline over the raw document."""
-    result = {"classification": _classify_document(json_path), "children": []}
-    if result["classification"].get("doc_type") == "paquete_eeff":
-        run = getattr(splitter_tool, "run", splitter_tool)
-        result["children"] = run(json_path)
-    return result
-
-
-orchestrator_tool = Tool(
-    name="orchestrate_document",
-    func=_orchestrate,
-    description="Classify a document and split financial packages into parts",
-)
-
+# ───────────────────── Retrieval Tool ──────────────────────── #
 
 def _retrieve(query: str) -> str:
-    """Dummy retrieval function used as a placeholder."""
     return f"Retrieved information for: {query}"
 
 
@@ -49,8 +39,9 @@ retrieve_tool = Tool(
 )
 
 
+# ────────────────────── Analysis Tool ───────────────────────── #
+
 def _analyze(text: str) -> str:
-    """Analyze text with a simple helper."""
     return analysis_tool.run(text)
 
 
@@ -61,6 +52,21 @@ analyze_tool = Tool(
 )
 
 
-def get_orchestrator_agent():
-    """Return the main orchestrator callable (placeholder)."""
-    return orchestrator_tool
+_TOOLS: List[Tool] = [classify_tool, retrieve_tool, analyze_tool]
+
+_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "Eres un asistente para procesar documentos. Usa las herramientas disponibles y responde en español.",
+        ),
+        ("user", "{input}"),
+    ]
+)
+
+
+def get_orchestrator_agent() -> AgentExecutor:
+    """Return a LangChain AgentExecutor exposing the available tools."""
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+    agent = create_tool_calling_agent(llm, _TOOLS, _PROMPT)
+    return AgentExecutor(agent=agent, tools=_TOOLS)

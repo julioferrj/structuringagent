@@ -1,29 +1,42 @@
-"""Utilities to aggregate information from multiple documents."""
+"""Summarization utilities for multiple documents."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List
 
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
 
 from backend.schemas.raw_doc import RawDocument
 
 
-def aggregate_results(json_paths: List[str]) -> Dict[str, Any]:
-    """Merge several RawDocument JSON files by document type."""
-    combined: Dict[str, List[str]] = {}
+_SUMMARY_PROMPT = ChatPromptTemplate.from_messages(
+    [
+        ("system", "Eres un asistente que resume documentos."),
+        ("user", "{text}"),
+    ]
+)
+
+
+def summarize_documents(json_paths: List[str]) -> str:
+    """Return a short summary for all provided document JSON files."""
+    texts: List[str] = []
     for path_str in json_paths:
         path = Path(path_str)
         raw = RawDocument.model_validate_json(path.read_text(encoding="utf-8"))
         pages = raw.content.get("pages", [])
-        combined.setdefault(raw.doc_type, []).extend(pages)
+        texts.append("\n".join(pages))
 
-    return {doc_type: "\n".join(pages) for doc_type, pages in combined.items()}
+    combined = "\n\n".join(texts)
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+    chain = _SUMMARY_PROMPT | llm
+    return chain.invoke({"text": combined}).content
 
 
-aggregate_tool = Tool(
-    name="aggregate_results",
-    func=aggregate_results,
-    description="Combine multiple document JSON files into one structure",
+summarize_tool = Tool(
+    name="summarize_documents",
+    func=summarize_documents,
+    description="Summarize multiple document JSON files into a short paragraph",
 )

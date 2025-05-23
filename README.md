@@ -74,16 +74,16 @@ variable points to your `tesseract` executable.
 ## Aggregation
 
 The aggregation endpoint collects multiple processed documents and merges their
-data. Pass a JSON array with the paths returned by the orchestrator or the
-upload endpoint. The result is a consolidated structure that can be consumed by
-other tools.
+data. Pass a JSON array of `json_paths` returned by the analyze or upload
+endpoints. The result is a consolidated structure that can be consumed by other
+tools.
 
 Example request:
 
 ```bash
 curl -X POST \
      -H "Content-Type: application/json" \
-     -d '{"sources": ["reports/raw/1.json", "reports/raw/2.json"]}' \
+     -d '{"json_paths": ["reports/raw/1.json", "reports/raw/2.json"]}' \
      http://localhost:8000/aggregate
 ```
 

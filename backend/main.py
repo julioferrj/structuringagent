@@ -71,7 +71,7 @@ async def analyze(json_path: str):
         result = orchestrator_tool.run(json_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis error: {e}")
-    return result
+    return {"analysis": result}
 
 
 @app.post("/aggregate")
@@ -81,4 +81,4 @@ async def aggregate(json_paths: list[str]):
         result = aggregator_tool.run(json_paths)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
-    return result
+    return {"aggregation": result}

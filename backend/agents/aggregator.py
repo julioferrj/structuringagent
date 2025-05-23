@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from langchain_core.tools import Tool
 
 from backend.schemas.raw_doc import RawDocument
 
 
-def aggregate_results(json_paths: List[str]) -> Dict[str, str]:
+def aggregate_results(json_paths: List[str]) -> Dict[str, Any]:
     """Merge several RawDocument JSON files by document type."""
     combined: Dict[str, List[str]] = {}
     for path_str in json_paths:

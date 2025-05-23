@@ -49,7 +49,7 @@ API documentation is available at http://localhost:8000/docs
 - `POST /upload`: Upload a financial document
 - `POST /classify`: Classify a processed document
 - `POST /split`: Split a financial package into constituent parts
-- `POST /orchestrate`: Full pipeline – upload, classify and split in one call
+- `POST /analyze`: Full pipeline – upload, classify and split in one call
 - `POST /aggregate`: Combine several classified documents into one dataset
 
 ## Orchestrator
@@ -63,11 +63,13 @@ Example request:
 
 ```bash
 curl -X POST -F "file=@/path/to/report.pdf" \
-     http://localhost:8000/orchestrate
+     http://localhost:8000/analyze
 ```
 
 The service requires the `OPENAI_API_KEY` variable in your `.env` file just as
 the other endpoints.
+If you are processing scanned PDFs, also ensure the optional `TESSERACT_CMD`
+variable points to your `tesseract` executable.
 
 ## Aggregation
 
@@ -86,3 +88,5 @@ curl -X POST \
 ```
 
 This operation also relies on the `OPENAI_API_KEY` environment variable.
+Any OCR steps performed prior to aggregation will also use the optional
+`TESSERACT_CMD` setting if defined.

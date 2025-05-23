@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from backend.loaders.ingest import extract_raw_json
-from backend.agents import classify_tool
+from backend.agents import classify_tool, orchestrator_tool, aggregator_tool
 
 
 from backend.tools import splitter_tool
@@ -62,3 +62,23 @@ async def classify(json_path: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification error: {e}")
     return result
+
+
+@app.post("/analyze")
+async def analyze(json_path: str):
+    """Clasifica y divide un documento si es un paquete de EEFF."""
+    try:
+        result = orchestrator_tool.run(json_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis error: {e}")
+    return {"analysis": result}
+
+
+@app.post("/aggregate")
+async def aggregate(json_paths: list[str]):
+    """Aggrega la información de varios documentos."""
+    try:
+        result = aggregator_tool.run(json_paths)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
+    return {"aggregation": result}

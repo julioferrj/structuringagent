@@ -74,9 +74,7 @@ variable points to your `tesseract` executable.
 ## Aggregation
 
 The aggregation endpoint collects multiple processed documents and merges their
-data. Pass a JSON array of `json_paths` returned by the analyze or upload
-endpoints. The result is a consolidated structure that can be consumed by other
-tools.
+
 
 Example request:
 

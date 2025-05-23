@@ -9,11 +9,10 @@ load_dotenv()
 
 from backend.loaders.ingest import extract_raw_json
 from backend.agents import classify_tool, orchestrator_tool, aggregator_tool
+from backend.schemas import AggregateRequest
 
 
 from backend.tools import splitter_tool
-
-
 
 
 app = FastAPI(
@@ -27,13 +26,14 @@ UPLOAD_DIR = Path("data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
-
 @app.post("/split")
 def split(json_path: str):
     """
     Ejecuta el splitter sobre el paquete_eeff indicado.
     """
     return {"children": splitter_tool(json_path)}
+
+
 # ---------- ENDPOINTS ---------------------------------------------------------
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
@@ -75,10 +75,10 @@ async def analyze(json_path: str):
 
 
 @app.post("/aggregate")
-async def aggregate(json_paths: list[str]):
+async def aggregate(request: AggregateRequest):
     """Aggrega la información de varios documentos."""
     try:
-        result = aggregator_tool.run(json_paths)
+        result = aggregator_tool.run(request.json_paths)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
     return {"aggregation": result}

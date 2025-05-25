@@ -1,5 +1,7 @@
 from langchain.tools import Tool
 from .classifier import classify
+from .orchestrator import orchestrate
+from .aggregator import aggregate
 
 # Exponemos el tool para que otros módulos puedan importarlo
 classify_tool = Tool(
@@ -11,4 +13,8 @@ classify_tool = Tool(
     ),
 )
 
-__all__ = ["classify_tool"]
+__all__ = [
+    "classify_tool",
+    "orchestrate",
+    "aggregate",
+]

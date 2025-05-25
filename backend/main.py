@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from backend.loaders.ingest import extract_raw_json
-from backend.agents import classify_tool
+from backend.agents import classify_tool, orchestrate, aggregate as aggregate_analyses
 
 
 from backend.tools import splitter_tool
@@ -62,3 +62,31 @@ async def classify(json_path: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification error: {e}")
     return result
+
+
+@app.post("/analyze")
+async def analyze(json_path: str):
+    """Run the orchestrator agent on a raw JSON document."""
+    try:
+        result = orchestrate(json_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis error: {e}")
+    return {"analysis": result}
+
+
+from pydantic import BaseModel
+from typing import List
+
+
+class AggregateRequest(BaseModel):
+    analyses: List[str]
+
+
+@app.post("/aggregate")
+async def aggregate(req: AggregateRequest):
+    """Aggregate multiple analysis strings into a summary."""
+    try:
+        summary = aggregate_analyses(req.analyses)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Aggregation error: {e}")
+    return {"summary": summary}

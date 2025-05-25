@@ -5,6 +5,11 @@ Aquí se exponen para que los Agents o FastAPI las importen.
 
 from langchain_core.tools import Tool
 
+# Import individual tools
+from .analysis_tool import analysis_tool
+from .db_search_tool import db_search_tool
+from .web_search_tool import web_search_tool
+
 # ───────── Splitter Tool ───────── #
 from .splitter import split_paquete_eeff
 
@@ -21,4 +26,7 @@ splitter_tool = Tool(
 # ───────── Exports ───────── #
 __all__ = [
     "splitter_tool",
+    "analysis_tool",
+    "db_search_tool",
+    "web_search_tool",
 ]

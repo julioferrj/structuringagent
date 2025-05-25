@@ -23,9 +23,11 @@ python -m venv venv
 ```
 pip install -r requirements.txt
 ```
-5. Create a `.env` file with your API keys:
+5. Install Tesseract OCR (make sure it is in your PATH or set `TESSERACT_CMD`).
+6. Create a `.env` file with your API keys:
 ```
 OPENAI_API_KEY=your_openai_api_key
+TESSERACT_CMD=/usr/bin/tesseract  # optional, if Tesseract is not in PATH
 ```
 
 ## Usage
@@ -44,3 +46,5 @@ API documentation is available at http://localhost:8000/docs
 - `POST /upload`: Upload a financial document
 - `POST /classify`: Classify a processed document
 - `POST /split`: Split a financial package into constituent parts
+- `POST /analyze`: Run the orchestrator agent on a document
+- `POST /aggregate`: Aggregate multiple analyses into a summary
